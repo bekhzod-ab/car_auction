@@ -1,46 +1,67 @@
 import React, {useState, useRef, useContext} from 'react'
 import { Modal, Form, Button, Alert, Row, Col } from 'react-bootstrap'
 import "bootstrap/dist/css/bootstrap.min.css";
+import { AuthContext } from '../../context/UseContext';
+const date = new Date()
 
-
-
-export const AddLoot = () => {
+export const AddLoot = ({setLot}) => {
     const [showForm, setShoForm] = useState(false)
     const [error, setError] = useState("")
-    const nameRef = useRef()
+
+
+
+    const modelRef = useRef()
     const registrRef = useRef()
     const milleageRef = useRef()
     const fuelRef = useRef()
     const transRef = useRef()
-   
-
+    const startRef = useRef()
+    const durationRef = useRef()
+    const currentRef = useRef()
+    const {user} = useContext(AuthContext)
+    const vehicleImage = useRef()
 
     const openForm = () => setShoForm(true)
     const closeForm = () => setShoForm(false)
 
+    //Validate Image types mention in array
+    const imgTypes =["image/png", "image/jpeg", "image/jpg"]
 
     const submitForm = async(e) => {
         e.preventDefault()
-        setError("")
-        if(passwordRef.current.value !== confpPasswordRef.current.value){
-            return setError("Passwords don't match")
-        }
+        setError("");
 
-        try {
-           await register(emailRef.current.value,passwordRef.current.value);
-           closeForm();
+        let dueDate = date.setHours(
+            date.getHours() + durationRef.current.value
+        );
+
+        if(!imgTypes.includes(vehicleImage.current.files[0].type)) {
+            return setError("Please upload only in following formats: .png/.jpeg/.jpg ")
         }
-        catch(err){
-            setError(err.message)
-        }
+        
+        let newLot = {
+            email: user.email,
+            model: modelRef.current.value,
+            registration: registrRef.current.value,
+            milleage: milleageRef.current.value,
+            fuel: fuelRef.current.value,
+            transmission: transRef.current.value,
+            startingPrice: startRef.current.value,
+            currentPrice: currentRef.current.value,
+            lotImage: vehicleImage.current.files[0],
+            duration: dueDate 
+        };
+
+        setLot(newLot)
+        closeForm()
     }
 
     return (
-        <>
-            <div onClick={openForm} className="btn btn-outline-success mx-2">
-                + Lot
+        <>  <div className="col d-flex justify-content-center">
+                <div onClick={openForm} className="btn btn-outline-success mx-2">
+                    Add Lot
+                </div>
             </div>
-
             <Modal centered show={showForm} onHide={closeForm}>
                 <form onSubmit={submitForm}>
 
@@ -54,8 +75,8 @@ export const AddLoot = () => {
                        <Row>
                            <Col>
                             <Form.Group>
-                                <Form.Label>Vehicle Name:</Form.Label>
-                                <Form.Control type="text" required ref={nameRef}/>
+                                <Form.Label>Vehicle Model:</Form.Label>
+                                <Form.Control type="text" required ref={modelRef}/>
                             </Form.Group>
                            </Col>
                            <Col>
@@ -90,17 +111,36 @@ export const AddLoot = () => {
                            </Col>
                            <Col>
                             <Form.Group>
+                                <Form.Label>Current Price:</Form.Label>
+                                <Form.Control type="number" required ref={currentRef}/>
+                            </Form.Group>
+                           </Col>
+                           <Col>
+                            <Form.Group>
                                 <Form.Label>Lot Duration:</Form.Label>
                                 <Form.Control type="number" required ref={durationRef}/>
                             </Form.Group>
                            </Col>
+                           <Col>
+                            <Form.Group>
+                                <Form.Label>Seller:</Form.Label>
+                                <Form.Control type="text" value={user.email} readOnly/>
+                            </Form.Group>
+                           </Col>
+                           <Col>
+                            <Form.Group>
+                                <Form.Label>Vehicle Image</Form.Label>
+                                <Form.File label="Select Lot Image" custom required ref={vehicleImage}/>
+                            </Form.Group>
+                           </Col>
                        </Row>
+                        {error? <Alert variant="danger mt-2">{error}</Alert>:""}
                     </Modal.Body>
 
 
                     <Modal.Footer>
                         <Button variant="secondary" onClick={closeForm}>Cancel</Button>
-                        <Button variant="success" type="submit">Register</Button>
+                        <Button variant="success" type="submit">Submit</Button>
                         
                     </Modal.Footer>
 
