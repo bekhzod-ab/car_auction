@@ -48,7 +48,7 @@ export const AddLoot = ({setLot}) => {
             transmission: transRef.current.value,
             startingPrice: startRef.current.value,
             currentPrice: currentRef.current.value,
-            lotImage: vehicleImage.current.files[0],
+            vehicleImage: vehicleImage.current.files[0],
             duration: dueDate 
         };
 
